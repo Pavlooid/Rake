@@ -4,25 +4,18 @@ class App
 
    def call(env)
     response = Rack::Request.new(env)
-    if response.path_info != '/time'
-      return [404, headers, [""]]
-    elsif response.params['format'].nil?
-      return [400, headers, ["Invalid_format_name\n"]]
-    end
+    return rack(400, "Invalid_format_name\n") if response.params['format'].nil?
 
     formatter = TimeFormat.new(response.params)
     formatter.check_format
     if formatter.valid?
-      [200, headers, ["#{formatter.time}\n"]]
+      rack(200, formatter.time)
     else
-      [400, headers, ["Unknown time format#{formatter.incorrect}\n"]]
+      rack(400, "Unknown time format#{formatter.incorrect}\n")
     end
   end
 
-  private
-
-  def headers
-    { 'content-type' => 'text/plain' }
+  def rack(status, body)
+    Rack::Response.new(body, status).finish
   end
-
 end
