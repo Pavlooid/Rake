@@ -15,6 +15,8 @@ class App
     end
   end
 
+  private
+
   def rack(status, body)
     Rack::Response.new(body, status).finish
   end
